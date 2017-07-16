@@ -7,8 +7,8 @@ import os
 
 
 # TCP_IP = 'localhost'
-TCP_IP = '0.0.0.0'
-TCP_PORT = 8080
+IP = '0.0.0.0'
+PORT = 5055
 BUFFER_SIZE = 256  # Normally 1024, but we want fast response
 
 
@@ -22,23 +22,31 @@ def get_external_ip():
     return ip
 
 
-def listener(ip=TCP_IP, port=TCP_PORT):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def listener(ip=IP, port=PORT, proto=socket.SOCK_STREAM):
+    sock = socket.socket(socket.AF_INET, proto)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((TCP_IP, TCP_PORT))
-    sock.listen(1)
+    sock.bind((ip, port))
+    if proto == socket.SOCK_STREAM:
+        sock.listen(1)
     logging.info('Listening on: ' + str(sock.getsockname()))
 
     try:
         while True:
-            conn, addr = sock.accept()
-            logging.info('Connection from Address : ' + str(addr))
+            if proto == socket.SOCK_STREAM:
+                conn, addr = sock.accept()
+                logging.info('Connection from Address : ' + str(addr))
 
             while True:
-                data = conn.recv(BUFFER_SIZE)
-                if not data:
-                    break
-                logging.info("Received Data : " + str(data))
+                if proto == socket.SOCK_STREAM:
+                    data = conn.recv(BUFFER_SIZE)
+                    if not data:
+                        break
+                    logging.info("Received Data : " + str(data))
+                elif proto == socket.SOCK_DGRAM:
+                    data, addr = sock.recvfrom(BUFFER_SIZE)
+                    if not data:
+                        break
+                    logging.info("Received From : " + str(addr) + " Data : " + str(data))
 
             conn.close()
             logging.info("Connection Closed")
@@ -49,8 +57,7 @@ def listener(ip=TCP_IP, port=TCP_PORT):
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-9s:  %(message)s', level=logging.DEBUG)
-    port = os.getenv(key='PORT', default='8080')
+    port = os.getenv(key='PORT', default='5055')
     ip = os.getenv(key='IP', default='0.0.0.0')
     get_external_ip()
-    listener(ip, port)
-
+    listener(ip=IP, port=PORT, proto=socket.SOCK_STREAM)

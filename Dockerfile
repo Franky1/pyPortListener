@@ -3,14 +3,10 @@ MAINTAINER Arvid Teichtmann
 
 RUN apt-get update && apt-get -y upgrade
 
-RUN pip install -U websockets && \
-    pip install -U geocoder && \
-    pip install -U requests && \
-    pip install -U netifaces
+RUN pip install -U requests
 
-ADD pyCanWebsocketServer.py /
-ADD pyJsonBlob.py /
+ADD pyPortListener.py /
 
-EXPOSE 8080
+EXPOSE 5055
 
-CMD [ "python", "./pyCanWebsocketServer.py" ]
+CMD [ "python", "./pyPortListener.py" ]
