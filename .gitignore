@@ -1,0 +1,7 @@
+.c9/
+.idea/
+build/
+__pycache__/
+*.spec
+*.csv
+*.log
