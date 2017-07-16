@@ -6,7 +6,7 @@ import socket
 import os
 
 
-# TCP_IP = 'localhost'
+# IP = 'localhost'
 IP = '0.0.0.0'
 PORT = 5055
 BUFFER_SIZE = 256  # Normally 1024, but we want fast response
